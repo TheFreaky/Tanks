@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Player extends Entity {
-
     private static final int PROTECTION_TIME = 4000;
     private static final float APPEARANCE_X = Entity.SPRITE_SCALE * Game.SCALE * 4;
     private static final float APPEARANCE_Y = Entity.SPRITE_SCALE * Game.SCALE * 12;
@@ -63,7 +62,7 @@ public class Player extends Entity {
     private List<Sprite> protectionList;
 
     Player(float scale, float speed, TextureAtlas atlas, Level lvl) {
-        super(EntityType.Player, APPEARANCE_X, APPEARANCE_Y, scale, atlas, lvl);
+        super(APPEARANCE_X, APPEARANCE_Y, scale, atlas, lvl);
 
         heading = Heading.NORTH_SIMPLE;
         spriteMap = new HashMap<>();
@@ -86,43 +85,41 @@ public class Player extends Entity {
             Sprite sprite = new Sprite(sheet, scale);
             spriteMap.put(h, sprite);
         }
-
     }
 
     @Override
     public void update(Input input) {
+        if (!lvl.isEagleAlive() || evolving) return;
 
-        if (!lvl.isEagleAlive())
-            return;
-
-        if (evolving)
-            return;
-
-        if (System.currentTimeMillis() > createdTime + EVOLVING_TIME + PROTECTION_TIME)
+        if (System.currentTimeMillis() > createdTime + EVOLVING_TIME + PROTECTION_TIME) {
             isProtected = false;
+        }
 
         float newX = x;
         float newY = y;
 
         if (input.getKey(KeyEvent.VK_UP)) {
             newY -= speed;
-            x = newX = (Math.round(newX / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+            newX = (Math.round(newX / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+            x = newX;
             heading = strength > 1 ? (strength > 2 ? Heading.NORTH_STRONG : Heading.NORTH_MEDIUM)
                     : Heading.NORTH_SIMPLE;
         } else if (input.getKey(KeyEvent.VK_RIGHT)) {
             newX += speed;
-            y = newY = (Math.round(newY / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+            newY = (Math.round(newY / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+            y = newY;
             heading = strength > 1 ? (strength > 2 ? Heading.EAST_STRONG : Heading.EAST_MEDIUM) : Heading.EAST_SIMPLE;
         } else if (input.getKey(KeyEvent.VK_DOWN)) {
             newY += speed;
-            x = newX = (Math.round(newX / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+            newX = (Math.round(newX / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+            x = newX;
             heading = strength > 1 ? (strength > 2 ? Heading.SOUTH_STRONG : Heading.SOUTH_MEDIUM)
                     : Heading.SOUTH_SIMPLE;
         } else if (input.getKey(KeyEvent.VK_LEFT)) {
             newX -= speed;
-            y = newY = (Math.round(newY / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+            newY = (Math.round(newY / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+            y = newY;
             heading = strength > 1 ? (strength > 2 ? Heading.WEST_STRONG : Heading.WEST_MEDIUM) : Heading.WEST_SIMPLE;
-
         }
 
         if (newX < 0) {
@@ -142,7 +139,7 @@ public class Player extends Entity {
             case NORTH_MEDIUM:
             case NORTH_STRONG:
                 if (canMove(newX, newY, newX + (SPRITE_SCALE * scale / 2), newY, newX + (SPRITE_SCALE * scale), newY)
-                        && !intersectsEnemy(newX, newY)) {
+                        && notIntersectsEnemy(newX, newY)) {
                     x = newX;
                     y = newY;
                 }
@@ -152,7 +149,7 @@ public class Player extends Entity {
             case SOUTH_STRONG:
                 if (canMove(newX, newY + (SPRITE_SCALE * scale), newX + (SPRITE_SCALE * scale / 2),
                         newY + (SPRITE_SCALE * scale), newX + (SPRITE_SCALE * scale), newY + (SPRITE_SCALE * scale))
-                        && !intersectsEnemy(newX, newY)) {
+                        && notIntersectsEnemy(newX, newY)) {
                     x = newX;
                     y = newY;
                 }
@@ -162,7 +159,7 @@ public class Player extends Entity {
             case EAST_STRONG:
                 if (canMove(newX + (SPRITE_SCALE * scale), newY, newX + (SPRITE_SCALE * scale),
                         newY + (SPRITE_SCALE * scale / 2), newX + (SPRITE_SCALE * scale), newY + (SPRITE_SCALE * scale))
-                        && !intersectsEnemy(newX, newY)) {
+                        && notIntersectsEnemy(newX, newY)) {
                     x = newX;
                     y = newY;
                 }
@@ -171,7 +168,7 @@ public class Player extends Entity {
             case WEST_MEDIUM:
             case WEST_STRONG:
                 if (canMove(newX, newY, newX, newY + (SPRITE_SCALE * scale / 2), newX, newY + (SPRITE_SCALE * scale))
-                        && !intersectsEnemy(newX, newY)) {
+                        && notIntersectsEnemy(newX, newY)) {
                     x = newX;
                     y = newY;
                 }
@@ -179,16 +176,13 @@ public class Player extends Entity {
         }
 
         List<Bullet> bullets = Game.getBullets(EntityType.Enemy);
-        if (bullets != null) {
-            for (Bullet enemyBullet : bullets) {
-                if (getRectangle().intersects(enemyBullet.getRectangle()) && enemyBullet.isActive()) {
-                    if (!isProtected)
-                        isAlive = false;
-                    enemyBullet.setInactive();
+        for (Bullet enemyBullet : bullets) {
+            if (getRectangle().intersects(enemyBullet.getRectangle()) && enemyBullet.isActive()) {
+                if (!isProtected) {
+                    isAlive = false;
                 }
-
+                enemyBullet.setInactive();
             }
-
         }
 
         if (lvl.hasBonus() && getRectangle().intersects(lvl.getBonusRectangle())) {
@@ -219,25 +213,23 @@ public class Player extends Entity {
 
         }
 
-        if (input.getKey(KeyEvent.VK_SPACE)) {
-            if (bullet == null || !bullet.isActive()) {
-                if (Game.getBullets(EntityType.Player).size() == 0) {
-                    bullet = new Bullet(x, y, scale, bulletSpeed, heading.toString().substring(0, 4), atlas, lvl,
-                            EntityType.Player);
-                }
-            }
+        if (input.getKey(KeyEvent.VK_SPACE) &&
+                (bullet == null || !bullet.isActive()) &&
+                Game.getBullets(EntityType.Player).isEmpty()) {
+            bullet = new Bullet(x, y, scale, bulletSpeed, heading.toString().substring(0, 4), atlas, lvl,
+                    EntityType.Player);
         }
 
     }
 
-    private boolean intersectsEnemy(float newX, float newY) {
+    private boolean notIntersectsEnemy(float newX, float newY) {
         List<Enemy> enemyList = Game.getEnemies();
         Rectangle2D.Float rect = getRectangle(newX, newY);
         for (Enemy enemy : enemyList) {
             if (rect.intersects(enemy.getRectangle()))
-                return true;
+                return false;
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -265,10 +257,12 @@ public class Player extends Entity {
     @Override
     public void drawExplosion(Graphics2D g) {
         super.drawExplosion(g);
-        if (--lives >= 0)
+        lives--;
+        if (lives >= 0) {
             reset();
-        else
+        } else {
             Game.setGameOver();
+        }
     }
 
     private void reset() {
@@ -280,7 +274,6 @@ public class Player extends Entity {
         createdTime = System.currentTimeMillis();
         strength = 1;
         heading = Heading.NORTH_SIMPLE;
-
     }
 
     boolean hasMoreLives() {
@@ -288,8 +281,8 @@ public class Player extends Entity {
     }
 
     @Override
-    public boolean isAlive() {
-        return isAlive;
+    public boolean isDead() {
+        return !isAlive;
     }
 
     private void upgrade() {
@@ -328,7 +321,6 @@ public class Player extends Entity {
             case SOUTH_STRONG:
             case WEST_STRONG:
         }
-
     }
 
     public static int getPlayerLives() {
@@ -369,8 +361,5 @@ public class Player extends Entity {
                 heading = Heading.NORTH_STRONG;
                 break;
         }
-
     }
-
-
 }

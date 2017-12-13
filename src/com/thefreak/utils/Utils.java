@@ -38,5 +38,4 @@ public class Utils {
     private static List<Integer> strToIntArr(String[] strArr) {
         return Arrays.stream(strArr).map(Integer::valueOf).collect(Collectors.toList());
     }
-
 }

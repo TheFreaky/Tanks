@@ -8,16 +8,16 @@ public class Tile {
     private BufferedImage image;
     private TileType type;
 
-    public static final int SCALE = 8;
-
     Tile(BufferedImage image, int scale, TileType type) {
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice device = env.getDefaultScreenDevice();
         GraphicsConfiguration config = device.getDefaultConfiguration();
-        BufferedImage buffy = config.createCompatibleImage(image.getWidth() * scale, image.getHeight() * scale,
+        BufferedImage buffy = config.createCompatibleImage(image.getWidth() * scale,
+                image.getHeight() * scale,
                 Transparency.TRANSLUCENT);
         Graphics g = buffy.getGraphics();
-        g.drawImage(image, 0, 0, image.getWidth() * scale, image.getHeight() * scale, null);
+        g.drawImage(image, 0, 0, image.getWidth() * scale,
+                image.getHeight() * scale, null);
         this.image = buffy;
         g.dispose();
         this.type = type;

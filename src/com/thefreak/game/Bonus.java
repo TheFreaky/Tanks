@@ -14,17 +14,20 @@ public enum Bonus {
     LIFE(21 * Entity.SPRITE_SCALE, 7 * Entity.SPRITE_SCALE, Entity.SPRITE_SCALE, Entity.SPRITE_SCALE);
 
 
-    private int x, y, h, w;
+    private int x;
+    private int y;
+    private int height;
+    private int width;
 
-    Bonus(int x, int y, int h, int w) {
+    Bonus(int x, int y, int height, int width) {
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
+        this.width = width;
+        this.height = height;
     }
 
     public BufferedImage texture(TextureAtlas atlas) {
-        return atlas.cut(x, y, w, h);
+        return atlas.cut(x, y, width, height);
     }
 
     public static Bonus fromNumeric(int n) {

@@ -1,7 +1,3 @@
-/**
- * @author https://github.com/Wedas/
- */
-
 package com.thefreak.game;
 
 import com.thefreak.game.level.Level;
@@ -15,7 +11,5 @@ public class EnemyGreenTank extends Enemy {
 
     public EnemyGreenTank(float x, float y, float scale, TextureAtlas atlas, Level lvl) {
         super(x, y, scale, SPEED, atlas, lvl, NORTH_X, NORTH_Y, LIVES);
-
     }
-
 }

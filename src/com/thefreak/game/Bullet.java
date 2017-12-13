@@ -27,9 +27,12 @@ class Bullet {
                 6 * Player.SPRITE_SCALE + 4, Player.SPRITE_SCALE / 2,
                 Player.SPRITE_SCALE / 2);
 
-        private int x, y, h, w;
+        private Integer x;
+        private Integer y;
+        private Integer h;
+        private Integer w;
 
-        BulletHeading(int x, int y, int h, int w) {
+        BulletHeading(Integer x, Integer y, Integer h, Integer w) {
             this.x = x;
             this.y = y;
             this.w = w;
@@ -41,20 +44,20 @@ class Bullet {
         }
     }
 
-    private float speed;
+    private Float speed;
     private Map<BulletHeading, Sprite> spriteMap;
     private BulletHeading bulletHeading;
-    private float x;
-    private float y;
-    private float scale;
+    private Float x;
+    private Float y;
+    private Float scale;
     private boolean isActive;
     private Level lvl;
     private EntityType type;
     private boolean explosionDone;
     private List<Sprite> explosionList;
-    private int animationCount;
+    private Integer animationCount;
 
-    Bullet(float x, float y, float scale, float speed, String direction, TextureAtlas atlas, Level lvl,
+    Bullet(Float x, Float y, Float scale, Float speed, String direction, TextureAtlas atlas, Level lvl,
            EntityType type) {
 
         spriteMap = new HashMap<>();
@@ -114,9 +117,7 @@ class Bullet {
     }
 
     void update() {
-
-        if (!isActive)
-            return;
+        if (!isActive) return;
 
         switch (bulletHeading) {
             case B_EAST:
@@ -145,14 +146,14 @@ class Bullet {
 
         if (type == EntityType.Player) {
             List<Bullet> enemyBullets = Game.getBullets(EntityType.Enemy);
-            for (Bullet bullet : enemyBullets)
+            for (Bullet bullet : enemyBullets) {
                 if (getRectangle().intersects(bullet.getRectangle())) {
                     isActive = false;
                     bullet.setInactive();
                     bullet.disableExplosion();
                     explosionDone = true;
                 }
-
+            }
         }
 
         if (x < 0 || x >= Game.WIDTH || y < 0 || y > Game.HEIGHT) {
@@ -166,40 +167,41 @@ class Bullet {
             Game.unregisterBullet(type, this);
             return;
         }
-        if (!isActive)
+        if (!isActive) {
             drawExplosion(g);
+        }
 
         if (isActive) {
             spriteMap.get(bulletHeading).render(g, x, y);
         }
     }
 
-    private boolean canFly(float startX, float startY, float endX, float endY) {
-        int tileStartX = (int) (startX / Level.SCALED_TILE_SIZE);
-        int tileStartY = (int) (startY / Level.SCALED_TILE_SIZE);
-        int tileEndX = (int) (endX / Level.SCALED_TILE_SIZE);
-        int tileEndY = (int) (endY / Level.SCALED_TILE_SIZE);
+    private boolean canFly(Float startX, Float startY, Float endX, Float endY) {
+        Integer tileStartX = (int) (startX / Level.SCALED_TILE_SIZE);
+        Integer tileStartY = (int) (startY / Level.SCALED_TILE_SIZE);
+        Integer tileEndX = (int) (endX / Level.SCALED_TILE_SIZE);
+        Integer tileEndY = (int) (endY / Level.SCALED_TILE_SIZE);
 
         Integer[][] tileArray = lvl.getTileMap();
 
         if (Integer.max(tileStartY, tileEndY) >= tileArray.length
                 || Integer.max(tileStartX, tileEndX) >= tileArray[0].length || Integer.min(tileStartY, tileEndY) < 0
-                || Integer.min(tileStartX, tileEndX) < 0)
+                || Integer.min(tileStartX, tileEndX) < 0) {
             return false;
-        else if (isImpassableTile(tileArray[tileStartY][tileStartX], tileArray[tileEndY][tileEndX])) {
+        } else if (isImpassableTile(tileArray[tileStartY][tileStartX], tileArray[tileEndY][tileEndX])) {
 
-            if (isDestroyableTile(tileArray[tileStartY][tileStartX]))
+            if (isDestroyableTile(tileArray[tileStartY][tileStartX])) {
                 lvl.update(tileStartX, tileStartY);
-
-            if (isDestroyableTile(tileArray[tileEndY][tileEndX]))
+            }
+            if (isDestroyableTile(tileArray[tileEndY][tileEndX])) {
                 lvl.update(tileEndX, tileEndY);
-
+            }
             return false;
-        } else
-            return true;
+        }
+        return true;
     }
 
-    private boolean isDestroyableTile(int tileNum) {
+    private boolean isDestroyableTile(Integer tileNum) {
         return tileNum == TileType.BRICK.numeric() || tileNum == TileType.DOWN_LEFT_EAGLE.numeric()
                 || tileNum == TileType.DOWN_RIGHT_EAGLE.numeric() || tileNum == TileType.UP_LEFT_EAGLE.numeric()
                 || tileNum == TileType.UP_RIGHT_EAGLE.numeric()
@@ -239,24 +241,24 @@ class Bullet {
         if (explosionDone)
             return;
 
-        float adjustedX = x - Player.SPRITE_SCALE * scale / 4;
-        float adjustedY = y - Player.SPRITE_SCALE * scale / 4;
+        Float adjustedX = x - Player.SPRITE_SCALE * scale / 4;
+        Float adjustedY = y - Player.SPRITE_SCALE * scale / 4;
 
-        if (animationCount % 9 < 3)
+        if (animationCount % 9 < 3) {
             explosionList.get(0).render(g, adjustedX, adjustedY);
-        else if (animationCount % 9 >= 3 && animationCount % 9 < 6)
+        } else if (animationCount % 9 >= 3 && animationCount % 9 < 6) {
             explosionList.get(1).render(g, adjustedX, adjustedY);
-        else if (animationCount % 9 > 6)
+        } else if (animationCount % 9 > 6) {
             explosionList.get(2).render(g, adjustedX, adjustedY);
+        }
         animationCount++;
 
-        if (animationCount > 12)
+        if (animationCount > 12) {
             explosionDone = true;
-
+        }
     }
 
     private void disableExplosion() {
         explosionDone = true;
     }
-
 }

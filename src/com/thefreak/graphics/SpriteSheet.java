@@ -3,7 +3,6 @@ package com.thefreak.graphics;
 import java.awt.image.BufferedImage;
 
 public class SpriteSheet {
-
     private BufferedImage sheet;
     private int spriteCount;
     private int scale;
@@ -17,14 +16,11 @@ public class SpriteSheet {
     }
 
     BufferedImage getSprite(int index) {
-
         index = index % spriteCount;
 
         int x = index % spritesInWidth * scale;
         int y = index / spritesInWidth * scale;
 
         return sheet.getSubimage(x, y, scale, scale);
-
     }
-
 }

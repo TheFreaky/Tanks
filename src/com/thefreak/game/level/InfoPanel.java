@@ -1,7 +1,3 @@
-/**
- * @author https://github.com/Wedas/
- */
-
 package com.thefreak.game.level;
 
 import com.thefreak.game.Game;
@@ -14,14 +10,13 @@ import com.thefreak.utils.Utils;
 import java.awt.*;
 
 public class InfoPanel {
-
     private TextureAtlas atlas;
     private Sprite enemySprite;
     private SpriteSheet numbersToFour;
     private SpriteSheet numbersToNine;
-    private int stage;
+    private Integer stage;
 
-    InfoPanel(TextureAtlas atlas, int stage) {
+    InfoPanel(TextureAtlas atlas, Integer stage) {
         this.atlas = atlas;
         this.stage = stage % 10;
 
@@ -61,7 +56,7 @@ public class InfoPanel {
                         Level.SCALED_TILE_SIZE, Level.SCALED_TILE_SIZE),
                 Game.WIDTH + 3 * Level.SCALED_TILE_SIZE, 16 * Level.SCALED_TILE_SIZE, null);
 
-        int playerLives = Player.getPlayerLives() < 0 ? 0 : Player.getPlayerLives();
+        Integer playerLives = Player.getPlayerLives() < 0 ? 0 : Player.getPlayerLives();
 
         new Sprite(playerLives < 5 ? numbersToFour : numbersToNine, Level.TILE_IN_GAME_SCALE,
                 playerLives % 5, false).render(g, Game.WIDTH + 4 * Level.SCALED_TILE_SIZE,
@@ -71,7 +66,5 @@ public class InfoPanel {
             enemySprite.render(g, Game.WIDTH + 3 * Level.SCALED_TILE_SIZE + i % 2 * Level.SCALED_TILE_SIZE,
                     3 * Level.SCALED_TILE_SIZE + i / 2 * Level.SCALED_TILE_SIZE);
         }
-
     }
-
 }

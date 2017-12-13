@@ -37,7 +37,6 @@ public class Game implements Runnable {
     private static long freezeImposedTime;
 
     private boolean running;
-    private Thread gameThread;
     private Input input;
     private static TextureAtlas atlas;
     private static Player player;
@@ -77,171 +76,156 @@ public class Game implements Runnable {
     }
 
     public synchronized void start() {
-        if (running)
-            return;
+        if (running) return;
 
         running = true;
-        gameThread = new Thread(this);
+        Thread gameThread = new Thread(this);
         gameThread.start();
-    }
-
-    public synchronized void stop() {
-
-        if (!running)
-            return;
-
-        running = false;
-
-        try {
-            gameThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        cleanUp();
-
     }
 
     private void update() {
 
-        if (enemyList.size() == 0 && enemyCount == 0 && timeWin == 0)
+        if (enemyList.size() == 0 && enemyCount == 0 && timeWin == 0) {
             timeWin = System.currentTimeMillis();
+        }
 
-        if (enemyList.size() == 0 && enemyCount == 0 && player.hasMoreLives() && !gameOver)
+        if (enemyList.size() == 0 && enemyCount == 0 && player.hasMoreLives() && !gameOver) {
             nextLevel();
+        }
 
         boolean canCreateEnemy = true;
 
         if (enemyList.size() < 4 && enemyCount > 0) {
             Random rand = new Random();
-            float possibleX = rand.nextInt(3) * ((Game.WIDTH - Player.SPRITE_SCALE * Game.SCALE) / 2);
+            Float possibleX = rand.nextInt(3) * ((Game.WIDTH - Player.SPRITE_SCALE * Game.SCALE) / 2);
             Rectangle2D.Float recForX = new Rectangle2D.Float(possibleX, 0, Player.SPRITE_SCALE * Game.SCALE,
                     Player.SPRITE_SCALE * Game.SCALE);
+
             for (Enemy enemy : enemyList) {
                 if (enemy.isEvolving()) {
                     canCreateEnemy = false;
                     break;
                 }
 
-                if (canCreateEnemy)
+                if (canCreateEnemy) {
                     if (recForX.intersects(enemy.getRectangle())) {
                         canCreateEnemy = false;
                     }
+                }
             }
+
             if (canCreateEnemy) {
-                if (player != null)
+                if (player != null) {
                     if (recForX.intersects(player.getRectangle())) {
                         canCreateEnemy = false;
                     }
-                if (canCreateEnemy) {
-                    Enemy enemy;
-                    enemyCount--;
-                    if (stage == 1) {
-                        if (enemyCount < 3)
-                            enemy = new EnemyInfantryVehicle(possibleX, 0, SCALE, atlas, lvl);
-                        else
-                            enemy = new EnemyTank(possibleX, 0, SCALE, atlas, lvl);
-                    } else {
-                        Random random = new Random();
-                        switch (random.nextInt(4)) {
-                            case 0:
-                                enemy = new EnemyInfantryVehicle(possibleX, 0, SCALE, atlas, lvl);
-                                break;
-                            case 1:
-                                enemy = new EnemyGreenTank(possibleX, 0, SCALE, atlas, lvl);
-                                break;
-                            default:
-                                enemy = new EnemyTank(possibleX, 0, SCALE, atlas, lvl);
-                        }
-                    }
-                    enemy.setPlayer(player);
-                    enemyList.add(enemy);
                 }
+
+                if (!canCreateEnemy) return;
+
+                Enemy enemy;
+                enemyCount--;
+                if (stage == 1) {
+                    if (enemyCount < 3) {
+                        enemy = new EnemyInfantryVehicle(possibleX, 0f, SCALE, atlas, lvl);
+                    } else {
+                        enemy = new EnemyTank(possibleX, 0f, SCALE, atlas, lvl);
+                    }
+                } else {
+                    Random random = new Random();
+                    switch (random.nextInt(2)) {
+                        case 0:
+                            enemy = new EnemyInfantryVehicle(possibleX, 0f, SCALE, atlas, lvl);
+                            break;
+                        case 1:
+                            enemy = new EnemyGreenTank(possibleX, 0f, SCALE, atlas, lvl);
+                            break;
+                        default:
+                            enemy = new EnemyTank(possibleX, 0f, SCALE, atlas, lvl);
+                    }
+                }
+                enemy.setPlayer(player);
+                enemyList.add(enemy);
             }
         }
 
         List<Bullet> playerBulletList = getBullets(EntityType.Player);
-        if (playerBulletList.size() > 0) {
+        if (!playerBulletList.isEmpty()) {
             for (Enemy enemy : enemyList) {
-                if (enemy.isEvolving())
-                    continue;
+                if (enemy.isEvolving()) continue;
                 if (enemy.getRectangle().intersects(playerBulletList.get(0).getRectangle())
                         && playerBulletList.get(0).isActive()) {
                     enemy.fixHitting(Player.getPlayerStrength());
                     playerBulletList.get(0).setInactive();
-                    if (!enemy.hasMoreLives())
+
+                    if (!enemy.hasMoreLives()) {
                         enemy.setDead();
+                    }
                 }
             }
         }
 
         if (enemiesFrozen) {
-            if (System.currentTimeMillis() > freezeImposedTime + FREEZE_TIME)
+            if (System.currentTimeMillis() > freezeImposedTime + FREEZE_TIME) {
                 enemiesFrozen = false;
+            }
         } else {
-            for (Enemy enemy : enemyList)
-                enemy.update(input);
+            enemyList.forEach(enemy -> enemy.update(input));
         }
 
-        for (int i = 0; i < bullets.get(EntityType.Enemy).size(); i++)
-            bullets.get(EntityType.Enemy).get(i).update();
+        for (List<Bullet> bulletList : bullets.values()) {
+            bulletList.forEach(Bullet::update);
+        }
 
-        for (int i = 0; i < bullets.get(EntityType.Player).size(); i++)
-            bullets.get(EntityType.Player).get(i).update();
-
-        if (player != null && !player.hasMoreLives())
+        if (player != null && !player.hasMoreLives()) {
             player = null;
+        }
 
-        if (player != null)
+        if (player != null) {
             player.update(input);
-
+        }
     }
 
     private void nextLevel() {
-
-        if (timeWin == 0 || System.currentTimeMillis() < timeWin + 5000)
-            return;
+        if (timeWin == 0 || System.currentTimeMillis() < timeWin + 5000) return;
 
         bullets = new HashMap<>();
         bullets.put(EntityType.Player, new LinkedList<>());
         bullets.put(EntityType.Enemy, new LinkedList<>());
-        if (++stage > 3)
+
+        stage++;
+        if (stage > 3) {
             stage = 1;
+        }
+
         lvl = new Level(atlas, stage);
         enemiesFrozen = false;
         enemyCount = 20;
         enemyList = new LinkedList<>();
         player.moveOnNextLevel();
         timeWin = 0;
-
     }
 
     private void render() {
-
         Display.clear();
-
-
         lvl.render(graphics);
 
-
         if (player != null) {
-            if (!player.isAlive()) {
+            if (player.isDead()) {
                 player.drawExplosion(graphics);
-            } else
+            } else {
                 player.render(graphics);
+            }
         }
 
-
         for (int i = 0; i < enemyList.size(); i++) {
-            if (!enemyList.get(i).isAlive()) {
+            if (enemyList.get(i).isDead()) {
                 enemyList.get(i).drawExplosion(graphics);
                 enemyList.remove(i);
             }
         }
 
-
-        for (Enemy enemy : enemyList)
-            enemy.render(graphics);
+        enemyList.forEach(enemy -> enemy.render(graphics));
 
 
         for (int i = 0; i < bullets.get(EntityType.Enemy).size(); i++)
@@ -254,51 +238,36 @@ public class Game implements Runnable {
 
         lvl.renderGrass(graphics);
 
-
         if (gameOver) {
             graphics.drawImage(gameOverImage, Game.WIDTH / 2 - 2 * Level.SCALED_TILE_SIZE,
                     Game.HEIGHT / 2, null);
-
         }
         Display.swapBuffers();
-
     }
 
     public void run() {
+        Float delta = 0f;
+        Boolean render;
+        Long lastTime = Time.get();
 
-        int fps = 0;
-        int upd = 0;
-        int updl = 0;
-
-        long count = 0;
-
-        float delta = 0;
-
-        long lastTime = Time.get();
         while (running) {
-            long now = Time.get();
-            long elapsedTime = now - lastTime;
+            Long now = Time.get();
+            Long elapsedTime = now - lastTime;
             lastTime = now;
 
-            count += elapsedTime;
-
-            boolean render = false;
+            render = false;
             delta += (elapsedTime / UPDATE_INTERVAL);
 
             while (delta > 1) {
                 update();
-                upd++;
                 delta--;
-                if (render) {
-                    updl++;
-                } else {
+                if (!render) {
                     render = true;
                 }
             }
 
             if (render) {
                 render();
-                fps++;
             } else {
                 try {
                     Thread.sleep(IDLE_TIME);
@@ -306,21 +275,7 @@ public class Game implements Runnable {
                     e.printStackTrace();
                 }
             }
-
-            if (count >= Time.SECOND) {
-                Display.setTitle(TITLE + " || Fps: " + fps + " | Upd: " + upd + " | Updl: " + updl);
-                upd = 0;
-                fps = 0;
-                updl = 0;
-                count = 0;
-            }
-
         }
-
-    }
-
-    private void cleanUp() {
-        Display.destroy();
     }
 
     static List<Enemy> getEnemies() {
@@ -344,13 +299,12 @@ public class Game implements Runnable {
     static void freezeEnemies() {
         enemiesFrozen = true;
         freezeImposedTime = System.currentTimeMillis();
-
     }
 
     static void detonateEnemies() {
-        for (Enemy enemy : enemyList)
+        for (Enemy enemy : enemyList) {
             enemy.setDead();
-
+        }
     }
 
     public static int getEnemyCount() {
@@ -359,11 +313,9 @@ public class Game implements Runnable {
 
     public static void setGameOver() {
         gameOver = true;
-
     }
 
     public static void reset() {
-
         bullets = new HashMap<>();
         bullets.put(EntityType.Player, new LinkedList<>());
         bullets.put(EntityType.Enemy, new LinkedList<>());
@@ -374,7 +326,5 @@ public class Game implements Runnable {
         enemyList = new LinkedList<>();
         player = new Player(SCALE, PLAYER_SPEED, atlas, lvl);
         gameOver = false;
-
     }
-
 }

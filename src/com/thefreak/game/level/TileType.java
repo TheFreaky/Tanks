@@ -1,9 +1,10 @@
 package com.thefreak.game.level;
 
 public enum TileType {
-    EMPTY(0), BRICK(1), METAL(2), WATER(3), GRASS(4), OTHER_WATER(5), UP_LEFT_EAGLE(6), UP_RIGHT_EAGLE(7), DOWN_LEFT_EAGLE(8),
-    DOWN_RIGHT_EAGLE(9), UP_LEFT_DEAD_EAGLE(10), UP_RIGHT_DEAD_EAGLE(11), DOWN_LEFT_DEAD_EAGLE(12),
-    DOWN_RIGHT_DEAD_EAGLE(13);
+    EMPTY(0), BRICK(1), METAL(2), WATER(3), GRASS(4), OTHER_WATER(5),
+    UP_LEFT_EAGLE(6), UP_RIGHT_EAGLE(7), DOWN_LEFT_EAGLE(8),
+    DOWN_RIGHT_EAGLE(9), UP_LEFT_DEAD_EAGLE(10), UP_RIGHT_DEAD_EAGLE(11),
+    DOWN_LEFT_DEAD_EAGLE(12), DOWN_RIGHT_DEAD_EAGLE(13);
 
     private int n;
 
@@ -47,5 +48,4 @@ public enum TileType {
                 return EMPTY;
         }
     }
-
 }

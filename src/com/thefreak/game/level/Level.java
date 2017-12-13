@@ -14,30 +14,28 @@ import java.util.*;
 import java.util.List;
 
 public class Level {
-    public static final int TILE_SCALE = 8;
-    static final int TILE_IN_GAME_SCALE = 3;
-    public static final int SCALED_TILE_SIZE = TILE_SCALE * TILE_IN_GAME_SCALE;
-    public static final int TILES_IN_WIDTH = Game.WIDTH / SCALED_TILE_SIZE;
-    public static final int TILES_IN_HEIGHT = Game.HEIGHT / SCALED_TILE_SIZE;
-    private static final int BONUS_DURATION = 10000;
+    public static final Integer TILE_SCALE = 8;
+    static final Integer TILE_IN_GAME_SCALE = 3;
+    public static final Integer SCALED_TILE_SIZE = TILE_SCALE * TILE_IN_GAME_SCALE;
+    private static final Integer BONUS_DURATION = 10000;
 
-    private static final int[] ARRAY_TO_RESTORE_EAGLE = new int[20];
+    private static final Integer[] ARRAY_TO_RESTORE_EAGLE = new Integer[20];
 
     private Integer[][] tileMap;
     private Map<TileType, Tile> tiles;
     private List<Point> grassCords;
-    private int count;
+    private Integer count;
     private TextureAtlas atlas;
     private Bonus bonus;
     private Sprite bonusSprite;
     private Point bonusPoint;
-    private boolean hasBonus;
-    private long bonusCreatedTime;
-    private boolean eagleProtected;
+    private Boolean hasBonus;
+    private Long bonusCreatedTime;
+    private Boolean eagleProtected;
     private InfoPanel infoPanel;
-    private boolean eagleAlive;
+    private Boolean eagleAlive;
 
-    public Level(TextureAtlas atlas, int stage) {
+    public Level(TextureAtlas atlas, Integer stage) {
         tiles = new HashMap<>();
         count = 0;
         this.atlas = atlas;
@@ -119,41 +117,43 @@ public class Level {
 
         tileMap = Utils.levelParser("res/lvl" + stage + ".lvl");
         grassCords = new ArrayList<>();
-        for (int i = 0; i < tileMap.length; i++)
+        for (int i = 0; i < tileMap.length; i++) {
             for (int j = 0; j < tileMap[i].length; j++) {
-                if (tileMap[i][j] == TileType.GRASS.numeric())
+                if (tileMap[i][j] == TileType.GRASS.numeric()) {
                     grassCords.add(new Point(j * SCALED_TILE_SIZE, i * SCALED_TILE_SIZE));
+                }
             }
+        }
     }
 
-    public void update(int tileX, int tileY) {
+    public void update(int tileX, Integer tileY) {
         if (tileMap[tileY][tileX] == TileType.DOWN_LEFT_EAGLE.numeric()
                 || tileMap[tileY][tileX] == TileType.DOWN_RIGHT_EAGLE.numeric()
                 || tileMap[tileY][tileX] == TileType.UP_LEFT_EAGLE.numeric()
-                || tileMap[tileY][tileX] == TileType.UP_RIGHT_EAGLE.numeric())
+                || tileMap[tileY][tileX] == TileType.UP_RIGHT_EAGLE.numeric()) {
             destroyEagle();
-        else
+        } else {
             tileMap[tileY][tileX] = TileType.EMPTY.numeric();
+        }
     }
 
     private void destroyEagle() {
         for (int i = 0; i < tileMap.length; i++)
             for (int j = 0; j < tileMap[i].length; j++) {
-                if (tileMap[i][j] == TileType.DOWN_LEFT_EAGLE.numeric())
+                if (tileMap[i][j] == TileType.DOWN_LEFT_EAGLE.numeric()) {
                     tileMap[i][j] = TileType.DOWN_LEFT_DEAD_EAGLE.numeric();
-
-                else if (tileMap[i][j] == TileType.DOWN_RIGHT_EAGLE.numeric())
+                } else if (tileMap[i][j] == TileType.DOWN_RIGHT_EAGLE.numeric()) {
                     tileMap[i][j] = TileType.DOWN_RIGHT_DEAD_EAGLE.numeric();
 
-                else if (tileMap[i][j] == TileType.UP_LEFT_EAGLE.numeric())
+                } else if (tileMap[i][j] == TileType.UP_LEFT_EAGLE.numeric()) {
                     tileMap[i][j] = TileType.UP_LEFT_DEAD_EAGLE.numeric();
 
-                else if (tileMap[i][j] == TileType.UP_RIGHT_EAGLE.numeric())
+                } else if (tileMap[i][j] == TileType.UP_RIGHT_EAGLE.numeric()) {
                     tileMap[i][j] = TileType.UP_RIGHT_DEAD_EAGLE.numeric();
+                }
             }
         eagleAlive = false;
         Game.setGameOver();
-
     }
 
     public void render(Graphics2D g) {
@@ -207,10 +207,9 @@ public class Level {
                 (int) (rand.nextInt(12) * (Entity.SPRITE_SCALE * Game.SCALE)));
         hasBonus = true;
         bonusCreatedTime = System.currentTimeMillis();
-
     }
 
-    public boolean hasBonus() {
+    public Boolean hasBonus() {
         return hasBonus;
     }
 
@@ -275,7 +274,6 @@ public class Level {
         tileMap[23][14] = 2;
         tileMap[22][15] = 2;
         tileMap[22][14] = 2;
-
     }
 
     private void restoreEagle() {
@@ -299,11 +297,9 @@ public class Level {
         tileMap[23][14] = ARRAY_TO_RESTORE_EAGLE[17];
         tileMap[22][15] = ARRAY_TO_RESTORE_EAGLE[18];
         tileMap[22][14] = ARRAY_TO_RESTORE_EAGLE[19];
-
     }
 
-    public boolean isEagleAlive() {
+    public Boolean isEagleAlive() {
         return eagleAlive;
     }
-
 }

@@ -1,21 +1,15 @@
-/**
- * @author https://github.com/Wedas/
- */
-
 package com.thefreak.game;
 
 import com.thefreak.game.level.Level;
 import com.thefreak.graphics.TextureAtlas;
 
 public class EnemyTank extends Enemy {
-    private static final int NORTH_X = 8;
-    private static final int NORTH_Y = 0;
-    private static final float SPEED = 1.8f;
-    private static final int LIVES = 0;
+    private static final Integer NORTH_X = 8;
+    private static final Integer NORTH_Y = 0;
+    private static final Float SPEED = 1.8f;
+    private static final Integer LIVES = 0;
 
-    public EnemyTank(float x, float y, float scale, TextureAtlas atlas, Level lvl) {
+    public EnemyTank(Float x, Float y, Float scale, TextureAtlas atlas, Level lvl) {
         super(x, y, scale, SPEED, atlas, lvl, NORTH_X, NORTH_Y, LIVES);
-
     }
-
 }
