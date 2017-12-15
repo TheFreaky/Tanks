@@ -18,12 +18,12 @@ public class Game implements Runnable {
     public static final int WIDTH = 624;
     public static final int HEIGHT = 624;
     private static final String TITLE = "Tanks";
-    private static final int CLEAR_COLOR = 0xff000000;
+    private static final Color CLEAR_COLOR = new Color(0xff000000);
     private static final int NUM_BUFFERS = 3;
-    private static final float UPDATE_RATE = 60.0f;
-    private static final float UPDATE_INTERVAL = Time.SECOND / UPDATE_RATE;
+    private static final float UPDATE_RATE = 60.0f; //Количество вычислений в секунду
+    private static final float UPDATE_INTERVAL = Time.SECOND / UPDATE_RATE; //Время между каждым апдейтом
     public static final float SCALE = 3f;
-    private static final long IDLE_TIME = 1;
+    private static final long IDLE_TIME = 1; //Кол-во времени для "отдыха" программы(1 милисек)
     private static final String ATLAS_FILE_NAME = "texture_atlas.png";
     private static final float PLAYER_SPEED = 3f;
 
@@ -36,6 +36,7 @@ public class Game implements Runnable {
     private static boolean enemiesFrozen;
     private static long freezeImposedTime;
 
+    private Display display;
     private boolean running;
     private Input input;
     private static TextureAtlas atlas;
@@ -48,10 +49,10 @@ public class Game implements Runnable {
 
     public Game() {
         running = false;
-        Display.create(WIDTH + 8 * Level.SCALED_TILE_SIZE, HEIGHT, TITLE, CLEAR_COLOR, NUM_BUFFERS);
-        graphics = Display.getGraphics();
+        display = new Display(WIDTH + 8 * Level.SCALED_TILE_SIZE, HEIGHT, TITLE, CLEAR_COLOR, NUM_BUFFERS);
+        graphics = display.getGraphics();
         input = new Input();
-        Display.addInputListener(input);
+        display.addInputListener(input);
         atlas = new TextureAtlas(ATLAS_FILE_NAME);
         bullets = new HashMap<>();
         bullets.put(EntityType.Player, new LinkedList<>());
@@ -207,7 +208,7 @@ public class Game implements Runnable {
     }
 
     private void render() {
-        Display.clear();
+        display.clear();
         lvl.render(graphics);
 
         if (player != null) {
@@ -242,7 +243,7 @@ public class Game implements Runnable {
             graphics.drawImage(gameOverImage, Game.WIDTH / 2 - 2 * Level.SCALED_TILE_SIZE,
                     Game.HEIGHT / 2, null);
         }
-        Display.swapBuffers();
+        display.swapBuffers();
     }
 
     public void run() {

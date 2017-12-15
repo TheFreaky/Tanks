@@ -11,71 +11,67 @@ import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
 public class Display {
-    private static boolean created = false;
-    private static JFrame window;
+    private static JFrame mainFrame; //Рамка
 
-    private static BufferedImage buffer;
-    private static int[] bufferData;
-    private static Graphics bufferGraphics;
-    private static Integer clearColor;
+    private BufferedImage buffer; //Изображение, на которое будет все помещаться, а после с него на экран
+    private int[] bufferData; //информация о изображении BufferedImage (массив цветов в ARGB)
+    private Graphics bufferGraphics;
+    private Color clearColor; // Цвет для очистки
 
-    private static BufferStrategy bufferStrategy;
+    private BufferStrategy bufferStrategy;
 
-    public static void create(Integer width, Integer height, String title, Integer clearColor, Integer numBuffers) {
-        if (created) return;
-
-        window = new JFrame(title);
-        window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    public Display(Integer width, Integer height, String title, Color clearColor, Integer numBuffers) {
+        mainFrame = new JFrame(title);
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //Программа закрывается, при нажатии на крестик
 
         MenuBar menuBar = new MenuBar();
         Menu gameMenu = new Menu("Game");
         MenuItem newGameMenu = new MenuItem("New");
         newGameMenu.addActionListener((event) -> Game.reset());
-        window.setMenuBar(menuBar);
+        mainFrame.setMenuBar(menuBar);
         menuBar.add(gameMenu);
         gameMenu.add(newGameMenu);
 
-        Canvas content = new Canvas();
+        Canvas content = new Canvas(); // "Лист" внутри рамки
 
-        Dimension size = new Dimension(width, height);
-        content.setPreferredSize(size);
+        Dimension contentSize = new Dimension(width, height); //Обрабатывает разрешение окна
+        content.setPreferredSize(contentSize);
 
-        window.setResizable(false);
-        window.getContentPane().add(content);
-        window.pack();
-        window.setLocationRelativeTo(null);
-        window.setVisible(true);
+        mainFrame.setResizable(false); //Исключает возможность изменить размер окна
+        mainFrame.getContentPane().add(content); //Исключает из области добавления занятые участи, т.е. тулбары
+        mainFrame.pack(); //Изменяет размер окна под контент
+        mainFrame.setLocationRelativeTo(null); //Окно появляется по середине экрана
+        mainFrame.setVisible(true);
 
-        buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        bufferData = ((DataBufferInt) buffer.getRaster().getDataBuffer()).getData();
+        buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); // ARGB - Прозрачность + RGB
+        bufferData = ((DataBufferInt) buffer.getRaster().getDataBuffer())
+                .getData();
         bufferGraphics = buffer.getGraphics();
-        ((Graphics2D) bufferGraphics).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        Display.clearColor = clearColor;
+        ((Graphics2D) bufferGraphics)
+                .setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //Сглаживание
+        this.clearColor = clearColor;
 
-        content.createBufferStrategy(numBuffers);
+        content.createBufferStrategy(numBuffers); //Создание стратегии буферизации для большей плавности
 
         bufferStrategy = content.getBufferStrategy();
-
-        created = true;
-
     }
 
-    public static void clear() {
-        Arrays.fill(bufferData, clearColor);
+    public void clear() {
+        Arrays.fill(bufferData, clearColor.getRGB());
     }
 
-    public static void swapBuffers() {
+    //Меняет то, что мы видим внутри канваса на новую сцену
+    public void swapBuffers() {
         Graphics g = bufferStrategy.getDrawGraphics();
         g.drawImage(buffer, 0, 0, null);
         bufferStrategy.show();
     }
 
-    public static Graphics2D getGraphics() {
+    public Graphics2D getGraphics() {
         return (Graphics2D) bufferGraphics;
     }
 
-    public static void addInputListener(Input inputListener) {
-        window.add(inputListener);
+    public void addInputListener(Input inputListener) {
+        mainFrame.add(inputListener);
     }
 }
