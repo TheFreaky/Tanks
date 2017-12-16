@@ -186,7 +186,13 @@ public class Level {
             restoreEagle();
         }
 
-        infoPanel.renderInfoPanel(g, game.getEnemyCount(), game.getScore(), game.getScoreMoreThanOpponent());
+        if (game.getScore() >= game.getOpponentScore()) {
+            infoPanel.renderInfoPanel(g, game.getEnemyCount(),
+                    game.getScore() - game.getOpponentScore(), true);
+        } else {
+            infoPanel.renderInfoPanel(g, game.getEnemyCount(),
+                    game.getOpponentScore() - game.getScore(), false);
+        }
 
     }
 
