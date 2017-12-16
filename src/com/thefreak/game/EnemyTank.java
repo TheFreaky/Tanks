@@ -9,7 +9,7 @@ public class EnemyTank extends Enemy {
     private static final Float SPEED = 1.8f;
     private static final Integer LIVES = 0;
 
-    public EnemyTank(Float x, Float y, Float scale, TextureAtlas atlas, Level lvl) {
-        super(x, y, scale, SPEED, atlas, lvl, NORTH_X, NORTH_Y, LIVES);
+    public EnemyTank(Float x, Float y, Float scale, TextureAtlas atlas, Level lvl, Game game) {
+        super(x, y, scale, SPEED, atlas, lvl, NORTH_X, NORTH_Y, LIVES, game);
     }
 }

@@ -50,15 +50,17 @@ class Bullet {
     private Float x;
     private Float y;
     private Float scale;
-    private boolean isActive;
+    private Boolean isActive;
     private Level lvl;
     private EntityType type;
-    private boolean explosionDone;
+    private Boolean explosionDone;
     private List<Sprite> explosionList;
     private Integer animationCount;
+    private Game game;
 
     Bullet(Float x, Float y, Float scale, Float speed, String direction, TextureAtlas atlas, Level lvl,
-           EntityType type) {
+           EntityType type, Game game) {
+        this.game = game;
 
         spriteMap = new HashMap<>();
         this.lvl = lvl;
@@ -112,7 +114,7 @@ class Bullet {
                 this.y = y + Player.SPRITE_SCALE * scale / 2;
                 break;
         }
-        Game.registerBullet(type, this);
+        game.registerBullet(type, this);
 
     }
 
@@ -145,7 +147,7 @@ class Bullet {
         }
 
         if (type == EntityType.Player) {
-            List<Bullet> enemyBullets = Game.getBullets(EntityType.Enemy);
+            List<Bullet> enemyBullets = game.getBullets(EntityType.Enemy);
             for (Bullet bullet : enemyBullets) {
                 if (getRectangle().intersects(bullet.getRectangle())) {
                     isActive = false;
@@ -164,7 +166,7 @@ class Bullet {
 
     void render(Graphics2D g) {
         if (!isActive && explosionDone) {
-            Game.unregisterBullet(type, this);
+            game.unregisterBullet(type, this);
             return;
         }
         if (!isActive) {
@@ -176,7 +178,7 @@ class Bullet {
         }
     }
 
-    private boolean canFly(Float startX, Float startY, Float endX, Float endY) {
+    private Boolean canFly(Float startX, Float startY, Float endX, Float endY) {
         Integer tileStartX = (int) (startX / Level.SCALED_TILE_SIZE);
         Integer tileStartY = (int) (startY / Level.SCALED_TILE_SIZE);
         Integer tileEndX = (int) (endX / Level.SCALED_TILE_SIZE);
@@ -201,7 +203,7 @@ class Bullet {
         return true;
     }
 
-    private boolean isDestroyableTile(Integer tileNum) {
+    private Boolean isDestroyableTile(Integer tileNum) {
         return tileNum == TileType.BRICK.numeric() || tileNum == TileType.DOWN_LEFT_EAGLE.numeric()
                 || tileNum == TileType.DOWN_RIGHT_EAGLE.numeric() || tileNum == TileType.UP_LEFT_EAGLE.numeric()
                 || tileNum == TileType.UP_RIGHT_EAGLE.numeric()
@@ -209,7 +211,7 @@ class Bullet {
 
     }
 
-    private boolean isImpassableTile(Integer... tileNum) {
+    private Boolean isImpassableTile(Integer... tileNum) {
         for (Integer aTileNum : tileNum) {
             if (aTileNum == TileType.BRICK.numeric() || aTileNum == TileType.METAL.numeric()
                     || aTileNum == TileType.DOWN_LEFT_EAGLE.numeric()
@@ -225,7 +227,7 @@ class Bullet {
         return false;
     }
 
-    boolean isActive() {
+    Boolean isActive() {
         return isActive;
     }
 

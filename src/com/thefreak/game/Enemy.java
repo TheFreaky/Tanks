@@ -15,24 +15,25 @@ import java.util.Map;
 import java.util.Random;
 
 public abstract class Enemy extends Entity {
-    private static final int DELAY = 2000;
+    private static final Integer DELAY = 2000;
 
     private EnemyHeading enemyHeading;
     private Map<EnemyHeading, Sprite> spriteMap;
-    private float speed;
-    private float bulletSpeed;
-    private static Player player;
+    private Float speed;
+    private Float bulletSpeed;
+    private Player player;
     private Bullet bullet;
     private Bonus bonus;
-    private int lives;
+    private Integer lives;
+    private Game game;
 
     public enum EnemyHeading {
         NORTH, EAST, SOUTH, WEST;
 
-        private int x;
-        private int y;
-        private int height;
-        private int width;
+        private Integer x;
+        private Integer y;
+        private Integer height;
+        private Integer width;
 
         protected BufferedImage texture(TextureAtlas atlas) {
             return atlas.cut(x, y, width, height);
@@ -51,7 +52,7 @@ public abstract class Enemy extends Entity {
             }
         }
 
-        private void setCords(int x, int y, int w, int h) {
+        private void setCords(int x, Integer y, Integer w, Integer h) {
             this.x = x;
             this.y = y;
             this.width = w;
@@ -60,14 +61,14 @@ public abstract class Enemy extends Entity {
         }
     }
 
-    public Enemy(float x, float y, float scale, float speed, TextureAtlas atlas, Level lvl, int headX, int headY,
-                 int lives) {
+    public Enemy(Float x, Float y, Float scale, Float speed, TextureAtlas atlas, Level lvl, Integer headX, Integer headY,
+                 Integer lives, Game game) {
         super(x, y, scale, atlas, lvl);
-
+        this.game = game;
         enemyHeading = EnemyHeading.NORTH;
         spriteMap = new HashMap<>();
         this.speed = speed;
-        bulletSpeed = 4;
+        bulletSpeed = 4f;
         this.lives = lives;
 
         Random rand = new Random();
@@ -102,30 +103,30 @@ public abstract class Enemy extends Entity {
         if (evolving || !isAlive)
             return;
 
-        float newX = x;
-        float newY = y;
+        Float newX = x;
+        Float newY = y;
 
         switch (enemyHeading) {
             case NORTH:
                 newY -= speed;
-                newX = (Math.round(newX / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+                newX = (float) ((Math.round(newX / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE);
                 break;
             case EAST:
                 newX += speed;
-                newY = (Math.round(newY / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+                newY = (float) ((Math.round(newY / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE);
                 break;
             case SOUTH:
                 newY += speed;
-                newX = (Math.round(newX / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+                newX = (float) ((Math.round(newX / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE);
                 break;
             case WEST:
                 newX -= speed;
-                newY = (Math.round(newY / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE;
+                newY = (float) ((Math.round(newY / Level.SCALED_TILE_SIZE)) * Level.SCALED_TILE_SIZE);
                 break;
         }
 
         if (newX < 0) {
-            newX = 0;
+            newX = 0f;
             enemyHeading = changeEnemyHeading();
         } else if (newX > Game.WIDTH - SPRITE_SCALE * scale) {
             newX = Game.WIDTH - SPRITE_SCALE * scale;
@@ -133,7 +134,7 @@ public abstract class Enemy extends Entity {
         }
 
         if (newY < 0) {
-            newY = 0;
+            newY = 0f;
             enemyHeading = changeEnemyHeading();
         } else if (newY > Game.HEIGHT - SPRITE_SCALE * scale) {
             newY = Game.HEIGHT - SPRITE_SCALE * scale;
@@ -181,19 +182,20 @@ public abstract class Enemy extends Entity {
                 break;
         }
 
-        if (bullet == null && System.currentTimeMillis() % DELAY < 50)
+        if (bullet == null && System.currentTimeMillis() % DELAY < 50) {
             bullet = new Bullet(x, y, scale, bulletSpeed, enemyHeading.toString().substring(0, 4), atlas, lvl,
-                    EntityType.Enemy);
+                    EntityType.Enemy, game);
+        }
         if (bullet != null && !bullet.isActive() && System.currentTimeMillis() % DELAY < 50) {
             bullet = new Bullet(x, y, scale, bulletSpeed, enemyHeading.toString().substring(0, 4), atlas, lvl,
-                    EntityType.Enemy);
+                    EntityType.Enemy, game);
         }
 
     }
 
     private EnemyHeading changeEnemyHeading() {
         Random random = new Random();
-        int direction = random.nextInt(4);
+        Integer direction = random.nextInt(4);
         EnemyHeading newEnemyHeading = enemyHeading.getFromNumber(direction);
         if (newEnemyHeading == enemyHeading)
             changeEnemyHeading();
@@ -215,11 +217,11 @@ public abstract class Enemy extends Entity {
     }
 
     public void setPlayer(Player player) {
-        Enemy.player = player;
+        this.player = player;
     }
 
-    private boolean notIntersectsEnemy(float newX, float newY) {
-        List<Enemy> enemyList = Game.getEnemies();
+    private boolean notIntersectsEnemy(Float newX, Float newY) {
+        List<Enemy> enemyList = game.getEnemies();
         Rectangle2D.Float rect = getRectangle(newX, newY);
         for (Enemy enemy : enemyList) {
             if (enemy != this && rect.intersects(enemy.getRectangle()))
@@ -251,5 +253,4 @@ public abstract class Enemy extends Entity {
     public boolean hasMoreLives() {
         return lives >= 0;
     }
-
 }

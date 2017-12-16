@@ -9,7 +9,7 @@ public class EnemyInfantryVehicle extends Enemy {
     private static final Float SPEED = 2.5f;
     private static final Integer LIVES = 0;
 
-    public EnemyInfantryVehicle(Float x, Float y, Float scale, TextureAtlas atlas, Level lvl) {
-        super(x, y, scale, SPEED, atlas, lvl, NORTH_X, NORTH_Y, LIVES);
+    public EnemyInfantryVehicle(Float x, Float y, Float scale, TextureAtlas atlas, Level lvl, Game game) {
+        super(x, y, scale, SPEED, atlas, lvl, NORTH_X, NORTH_Y, LIVES, game);
     }
 }

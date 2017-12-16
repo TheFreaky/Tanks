@@ -31,7 +31,7 @@ public class InfoPanel {
                 Level.TILE_SCALE), Level.TILE_IN_GAME_SCALE, 0, false);
     }
 
-    public void renderInfoPanel(Graphics2D g) {
+    public void renderInfoPanel(Graphics2D g, Integer enemyCount) {
         g.drawImage(Utils.resize(atlas.cut(46 * Level.TILE_SCALE, 0, Level.TILE_SCALE, Level.TILE_SCALE),
                 8 * Level.SCALED_TILE_SIZE, Game.HEIGHT), Game.WIDTH, 0, null);
 
@@ -62,7 +62,7 @@ public class InfoPanel {
                 playerLives % 5, false).render(g, Game.WIDTH + 4 * Level.SCALED_TILE_SIZE,
                 16 * Level.SCALED_TILE_SIZE);
 
-        for (int i = 0; i < Game.getEnemyCount(); i++) {
+        for (int i = 0; i < enemyCount; i++) {
             enemySprite.render(g, Game.WIDTH + 3 * Level.SCALED_TILE_SIZE + i % 2 * Level.SCALED_TILE_SIZE,
                     3 * Level.SCALED_TILE_SIZE + i / 2 * Level.SCALED_TILE_SIZE);
         }

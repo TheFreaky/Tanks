@@ -20,14 +20,14 @@ public class Display {
 
     private BufferStrategy bufferStrategy;
 
-    public Display(Integer width, Integer height, String title, Color clearColor, Integer numBuffers) {
+    public Display(Integer width, Integer height, String title, Color clearColor, Integer numBuffers, Game game) {
         mainFrame = new JFrame(title);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //Программа закрывается, при нажатии на крестик
 
         MenuBar menuBar = new MenuBar();
         Menu gameMenu = new Menu("Game");
         MenuItem newGameMenu = new MenuItem("New");
-        newGameMenu.addActionListener((event) -> Game.reset());
+        newGameMenu.addActionListener((event) -> game.reset());
         mainFrame.setMenuBar(menuBar);
         menuBar.add(gameMenu);
         gameMenu.add(newGameMenu);

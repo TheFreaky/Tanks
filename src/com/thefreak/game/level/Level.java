@@ -15,10 +15,10 @@ import java.util.List;
 
 public class Level {
     public static final Integer TILE_SCALE = 8;
-    static final Integer TILE_IN_GAME_SCALE = 3;
+    public static final Integer TILE_IN_GAME_SCALE = 3;
     public static final Integer SCALED_TILE_SIZE = TILE_SCALE * TILE_IN_GAME_SCALE;
-    private static final Integer BONUS_DURATION = 10000;
 
+    private static final Integer BONUS_DURATION = 10000;
     private static final Integer[] ARRAY_TO_RESTORE_EAGLE = new Integer[20];
 
     private Integer[][] tileMap;
@@ -34,8 +34,10 @@ public class Level {
     private Boolean eagleProtected;
     private InfoPanel infoPanel;
     private Boolean eagleAlive;
+    private Game game;
 
-    public Level(TextureAtlas atlas, Integer stage) {
+    public Level(TextureAtlas atlas, Integer stage, Game game) {
+        this.game = game;
         tiles = new HashMap<>();
         count = 0;
         this.atlas = atlas;
@@ -153,7 +155,7 @@ public class Level {
                 }
             }
         eagleAlive = false;
-        Game.setGameOver();
+        game.setGameOver();
     }
 
     public void render(Graphics2D g) {
@@ -184,7 +186,7 @@ public class Level {
             restoreEagle();
         }
 
-        infoPanel.renderInfoPanel(g);
+        infoPanel.renderInfoPanel(g, game.getEnemyCount());
 
     }
 

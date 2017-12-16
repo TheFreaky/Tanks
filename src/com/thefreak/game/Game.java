@@ -15,41 +15,42 @@ import java.util.List;
 
 public class Game implements Runnable {
 
-    public static final int WIDTH = 624;
-    public static final int HEIGHT = 624;
+    public static final Integer WIDTH = 624;
+    public static final Integer HEIGHT = 624;
+    public static final Float SCALE = 3f;
+
     private static final String TITLE = "Tanks";
     private static final Color CLEAR_COLOR = new Color(0xff000000);
-    private static final int NUM_BUFFERS = 3;
-    private static final float UPDATE_RATE = 60.0f; //Количество вычислений в секунду
-    private static final float UPDATE_INTERVAL = Time.SECOND / UPDATE_RATE; //Время между каждым апдейтом
-    public static final float SCALE = 3f;
-    private static final long IDLE_TIME = 1; //Кол-во времени для "отдыха" программы(1 милисек)
+    private static final Integer NUM_BUFFERS = 3;
+    private static final Float UPDATE_RATE = 60.0f; //Количество вычислений в секунду
+    private static final Float UPDATE_INTERVAL = Time.SECOND / UPDATE_RATE; //Время между каждым апдейтом
+    private static final Long IDLE_TIME = 1L; //Кол-во времени для "отдыха" программы(1 милисек)
     private static final String ATLAS_FILE_NAME = "texture_atlas.png";
-    private static final float PLAYER_SPEED = 3f;
+    private static final Float PLAYER_SPEED = 3f;
+    private static final Integer FREEZE_TIME = 8000;
 
-    private static final int FREEZE_TIME = 8000;
-    private static List<Enemy> enemyList = new LinkedList<>();
-    private static int stage = 1;
-
-    private static Map<EntityType, List<Bullet>> bullets;
-    private static Graphics2D graphics;
-    private static boolean enemiesFrozen;
-    private static long freezeImposedTime;
-
+    private List<Enemy> enemyList = new LinkedList<>();
+    private Integer stage = 1;
+    private Map<EntityType, List<Bullet>> bullets;
+    private Graphics2D graphics;
+    private Boolean enemiesFrozen;
+    private Long freezeImposedTime;
+    private Boolean gameOver;
+    private TextureAtlas atlas;
+    private Player player;
+    private Level lvl;
+    private Integer enemyCount;
     private Display display;
-    private boolean running;
+    private Boolean running;
     private Input input;
-    private static TextureAtlas atlas;
-    private static Player player;
-    private static Level lvl;
-    private static int enemyCount;
-    private static boolean gameOver;
     private BufferedImage gameOverImage;
     private long timeWin;
+    private Integer score; //Кол-во очков
 
     public Game() {
+        score = 0;
         running = false;
-        display = new Display(WIDTH + 8 * Level.SCALED_TILE_SIZE, HEIGHT, TITLE, CLEAR_COLOR, NUM_BUFFERS);
+        display = new Display(WIDTH + 8 * Level.SCALED_TILE_SIZE, HEIGHT, TITLE, CLEAR_COLOR, NUM_BUFFERS, this);
         graphics = display.getGraphics();
         input = new Input();
         display.addInputListener(input);
@@ -57,11 +58,11 @@ public class Game implements Runnable {
         bullets = new HashMap<>();
         bullets.put(EntityType.Player, new LinkedList<>());
         bullets.put(EntityType.Enemy, new LinkedList<>());
-        lvl = new Level(atlas, stage);
-        player = new Player(SCALE, PLAYER_SPEED, atlas, lvl);
+        lvl = new Level(atlas, stage, this);
+        player = new Player(SCALE, PLAYER_SPEED, atlas, lvl, this);
         enemiesFrozen = false;
         enemyCount = 20;
-        timeWin = 0;
+        timeWin = 0L;
         gameOver = false;
         gameOverImage = Utils.resize(
                 atlas.cut(36 * Level.TILE_SCALE, 23 * Level.TILE_SCALE, 4 * Level.TILE_SCALE,
@@ -70,13 +71,13 @@ public class Game implements Runnable {
 
         for (int i = 0; i < gameOverImage.getHeight(); i++)
             for (int j = 0; j < gameOverImage.getWidth(); j++) {
-                int pixel = gameOverImage.getRGB(j, i);
+                Integer pixel = gameOverImage.getRGB(j, i);
                 if ((pixel & 0x00FFFFFF) < 10)
                     gameOverImage.setRGB(j, i, (pixel & 0x00FFFFFF));
             }
     }
 
-    public synchronized void start() {
+    public void start() {
         if (running) return;
 
         running = true;
@@ -84,6 +85,7 @@ public class Game implements Runnable {
         gameThread.start();
     }
 
+    //Считает физику и все математические расчеты
     private void update() {
 
         if (enemyList.size() == 0 && enemyCount == 0 && timeWin == 0) {
@@ -94,7 +96,7 @@ public class Game implements Runnable {
             nextLevel();
         }
 
-        boolean canCreateEnemy = true;
+        Boolean canCreateEnemy = true;
 
         if (enemyList.size() < 4 && enemyCount > 0) {
             Random rand = new Random();
@@ -128,21 +130,21 @@ public class Game implements Runnable {
                 enemyCount--;
                 if (stage == 1) {
                     if (enemyCount < 3) {
-                        enemy = new EnemyInfantryVehicle(possibleX, 0f, SCALE, atlas, lvl);
+                        enemy = new EnemyInfantryVehicle(possibleX, 0f, SCALE, atlas, lvl, this);
                     } else {
-                        enemy = new EnemyTank(possibleX, 0f, SCALE, atlas, lvl);
+                        enemy = new EnemyTank(possibleX, 0f, SCALE, atlas, lvl, this);
                     }
                 } else {
                     Random random = new Random();
                     switch (random.nextInt(2)) {
                         case 0:
-                            enemy = new EnemyInfantryVehicle(possibleX, 0f, SCALE, atlas, lvl);
+                            enemy = new EnemyInfantryVehicle(possibleX, 0f, SCALE, atlas, lvl, this);
                             break;
                         case 1:
-                            enemy = new EnemyGreenTank(possibleX, 0f, SCALE, atlas, lvl);
+                            enemy = new EnemyGreenTank(possibleX, 0f, SCALE, atlas, lvl, this);
                             break;
                         default:
-                            enemy = new EnemyTank(possibleX, 0f, SCALE, atlas, lvl);
+                            enemy = new EnemyTank(possibleX, 0f, SCALE, atlas, lvl, this);
                     }
                 }
                 enemy.setPlayer(player);
@@ -199,14 +201,15 @@ public class Game implements Runnable {
             stage = 1;
         }
 
-        lvl = new Level(atlas, stage);
+        lvl = new Level(atlas, stage, this);
         enemiesFrozen = false;
         enemyCount = 20;
         enemyList = new LinkedList<>();
         player.moveOnNextLevel();
-        timeWin = 0;
+        timeWin = 0L;
     }
 
+    //Отрисовка сцены
     private void render() {
         display.clear();
         lvl.render(graphics);
@@ -222,7 +225,16 @@ public class Game implements Runnable {
         for (int i = 0; i < enemyList.size(); i++) {
             if (enemyList.get(i).isDead()) {
                 enemyList.get(i).drawExplosion(graphics);
+
+                if (enemyList.get(i) instanceof EnemyTank) {
+                    score += 100;
+                } else if (enemyList.get(i) instanceof EnemyInfantryVehicle) {
+                    score += 150;
+                } else {
+                    score += 200;
+                }
                 enemyList.remove(i);
+
             }
         }
 
@@ -279,53 +291,53 @@ public class Game implements Runnable {
         }
     }
 
-    static List<Enemy> getEnemies() {
+    List<Enemy> getEnemies() {
         return enemyList;
     }
 
-    static void registerBullet(EntityType type, Bullet bullet) {
+    void registerBullet(EntityType type, Bullet bullet) {
         bullets.get(type).add(bullet);
     }
 
-    static void unregisterBullet(EntityType type, Bullet bullet) {
-        if (bullets.get(type).size() > 0) {
+    void unregisterBullet(EntityType type, Bullet bullet) {
+        if (!bullets.get(type).isEmpty()) {
             bullets.get(type).remove(bullet);
         }
     }
 
-    static List<Bullet> getBullets(EntityType type) {
+    List<Bullet> getBullets(EntityType type) {
         return bullets.get(type);
     }
 
-    static void freezeEnemies() {
+    void freezeEnemies() {
         enemiesFrozen = true;
         freezeImposedTime = System.currentTimeMillis();
     }
 
-    static void detonateEnemies() {
+    void detonateEnemies() {
         for (Enemy enemy : enemyList) {
             enemy.setDead();
         }
     }
 
-    public static int getEnemyCount() {
+    public Integer getEnemyCount() {
         return enemyCount;
     }
 
-    public static void setGameOver() {
+    public void setGameOver() {
         gameOver = true;
     }
 
-    public static void reset() {
+    public void reset() {
         bullets = new HashMap<>();
         bullets.put(EntityType.Player, new LinkedList<>());
         bullets.put(EntityType.Enemy, new LinkedList<>());
         stage = 1;
-        lvl = new Level(atlas, stage);
+        lvl = new Level(atlas, stage, this);
         enemiesFrozen = false;
         enemyCount = 20;
         enemyList = new LinkedList<>();
-        player = new Player(SCALE, PLAYER_SPEED, atlas, lvl);
+        player = new Player(SCALE, PLAYER_SPEED, atlas, lvl, this);
         gameOver = false;
     }
 }

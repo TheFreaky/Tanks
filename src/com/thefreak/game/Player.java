@@ -60,9 +60,11 @@ public class Player extends Entity {
     private Bullet bullet;
     private boolean isProtected;
     private List<Sprite> protectionList;
+    private Game game;
 
-    Player(float scale, float speed, TextureAtlas atlas, Level lvl) {
+    Player(float scale, float speed, TextureAtlas atlas, Level lvl, Game game) {
         super(APPEARANCE_X, APPEARANCE_Y, scale, atlas, lvl);
+        this.game = game;
 
         heading = Heading.NORTH_SIMPLE;
         spriteMap = new HashMap<>();
@@ -175,7 +177,7 @@ public class Player extends Entity {
                 break;
         }
 
-        List<Bullet> bullets = Game.getBullets(EntityType.Enemy);
+        List<Bullet> bullets = game.getBullets(EntityType.Enemy);
         for (Bullet enemyBullet : bullets) {
             if (getRectangle().intersects(enemyBullet.getRectangle()) && enemyBullet.isActive()) {
                 if (!isProtected) {
@@ -193,7 +195,7 @@ public class Player extends Entity {
                     isProtected = true;
                     break;
                 case FREEZE:
-                    Game.freezeEnemies();
+                    game.freezeEnemies();
                     break;
                 case SHIELD:
                     lvl.protectEagle();
@@ -202,7 +204,7 @@ public class Player extends Entity {
                     upgrade();
                     break;
                 case DETONATION:
-                    Game.detonateEnemies();
+                    game.detonateEnemies();
                     break;
                 case LIFE:
                     if (++lives > 9)
@@ -215,15 +217,15 @@ public class Player extends Entity {
 
         if (input.getKey(KeyEvent.VK_SPACE) &&
                 (bullet == null || !bullet.isActive()) &&
-                Game.getBullets(EntityType.Player).isEmpty()) {
+                game.getBullets(EntityType.Player).isEmpty()) {
             bullet = new Bullet(x, y, scale, bulletSpeed, heading.toString().substring(0, 4), atlas, lvl,
-                    EntityType.Player);
+                    EntityType.Player, game);
         }
 
     }
 
     private boolean notIntersectsEnemy(float newX, float newY) {
-        List<Enemy> enemyList = Game.getEnemies();
+        List<Enemy> enemyList = game.getEnemies();
         Rectangle2D.Float rect = getRectangle(newX, newY);
         for (Enemy enemy : enemyList) {
             if (rect.intersects(enemy.getRectangle()))
@@ -261,7 +263,7 @@ public class Player extends Entity {
         if (lives >= 0) {
             reset();
         } else {
-            Game.setGameOver();
+            game.setGameOver();
         }
     }
 
