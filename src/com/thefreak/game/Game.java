@@ -46,8 +46,10 @@ public class Game implements Runnable {
     private BufferedImage gameOverImage;
     private long timeWin;
     private Integer score; //Кол-во очков
+    private Boolean scoreMoreThanOpponent; //Больше ли очков у текущего игрока по сравнению с соперником
 
     public Game() {
+        scoreMoreThanOpponent = true;
         score = 0;
         running = false;
         display = new Display(WIDTH + 8 * Level.SCALED_TILE_SIZE, HEIGHT, TITLE, CLEAR_COLOR, NUM_BUFFERS, this);
@@ -339,5 +341,17 @@ public class Game implements Runnable {
         enemyList = new LinkedList<>();
         player = new Player(SCALE, PLAYER_SPEED, atlas, lvl, this);
         gameOver = false;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public Boolean getScoreMoreThanOpponent() {
+        return scoreMoreThanOpponent;
+    }
+
+    public void setScoreMoreThanOpponent(Boolean scoreMoreThanOpponent) {
+        this.scoreMoreThanOpponent = scoreMoreThanOpponent;
     }
 }
