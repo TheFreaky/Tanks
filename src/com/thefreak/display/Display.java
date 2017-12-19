@@ -11,7 +11,7 @@ import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
 public class Display {
-    private static JFrame mainFrame; //Рамка
+    public static JFrame mainFrame; //Рамка
 
     private BufferedImage buffer; //Изображение, на которое будет все помещаться, а после с него на экран
     private int[] bufferData; //информация о изображении BufferedImage (массив цветов в ARGB)
