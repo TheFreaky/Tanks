@@ -41,6 +41,7 @@ public class ServerConnection {
                 }
             }).start();
         } catch (IOException e) {
+            listener.error("Ошибка покдлючение к серверу!");
             e.printStackTrace();
         }
     }

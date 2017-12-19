@@ -81,7 +81,7 @@ public class Game implements Runnable, ServerListener {
                 Integer pixel = gameOverImage.getRGB(j, i);
                 if ((pixel & 0x00FFFFFF) < 10)
                     gameOverImage.setRGB(j, i, (pixel & 0x00FFFFFF));
-            }
+        }
 
         waitDialog = new WaitDialog(Display.mainFrame);
         waitDialog.showDialog();
@@ -89,7 +89,7 @@ public class Game implements Runnable, ServerListener {
         connection.connect();
     }
 
-    public void start() {
+    private void start() {
         if (running) return;
 
         running = true;
@@ -375,5 +375,10 @@ public class Game implements Runnable, ServerListener {
     public int dataToSend() {
         System.out.println("Sending score: " + score);
         return score;
+    }
+
+    @Override
+    public void error(String text) {
+        waitDialog.setText(text);
     }
 }

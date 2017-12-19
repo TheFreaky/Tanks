@@ -6,6 +6,8 @@ import java.awt.*;
 
 public class WaitDialog extends JDialog {
 
+    private JLabel textLabel;
+
     public WaitDialog(Frame owner) {
         super(owner);
     }
@@ -16,11 +18,11 @@ public class WaitDialog extends JDialog {
 
         this.add(content);
         String text = "Подключение установлено, ожидание второго игрока...";
-        JLabel message = new JLabel(text);
-        message.setBorder(new EmptyBorder(10, 10, 10, 10));
-        message.setAlignmentX(0);
-        message.setSize(message.getPreferredSize());
-        content.add(message);
+        textLabel = new JLabel(text);
+        textLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        textLabel.setAlignmentX(0);
+        textLabel.setSize(textLabel.getPreferredSize());
+        content.add(textLabel);
 
         this.setUndecorated(true);
         this.setResizable(false);
@@ -28,6 +30,10 @@ public class WaitDialog extends JDialog {
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setVisible(true);
+    }
+
+    public void setText(String text) {
+        textLabel.setText(text);
     }
 
 }
