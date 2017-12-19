@@ -76,10 +76,12 @@ public class Player extends Entity {
         isProtected = true;
         protectionList = new ArrayList<>();
         protectionList.add(
-                new Sprite(new SpriteSheet(atlas.cut(16 * SPRITE_SCALE, 9 * SPRITE_SCALE, SPRITE_SCALE, SPRITE_SCALE),
+                new Sprite(new SpriteSheet(
+                        atlas.cut(16 * SPRITE_SCALE, 9 * SPRITE_SCALE, SPRITE_SCALE, SPRITE_SCALE),
                         SPRITES_PER_HEADING, SPRITE_SCALE), scale));
         protectionList.add(
-                new Sprite(new SpriteSheet(atlas.cut(17 * SPRITE_SCALE, 9 * SPRITE_SCALE, SPRITE_SCALE, SPRITE_SCALE),
+                new Sprite(new SpriteSheet(
+                        atlas.cut(17 * SPRITE_SCALE, 9 * SPRITE_SCALE, SPRITE_SCALE, SPRITE_SCALE),
                         SPRITES_PER_HEADING, SPRITE_SCALE), scale));
 
         for (Heading h : Heading.values()) {
@@ -248,10 +250,11 @@ public class Player extends Entity {
     }
 
     private void drawProtection(Graphics2D g) {
-        if (animationCount % 16 < 8)
+        if (animationCount % 16 < 8) {
             protectionList.get(0).render(g, x, y);
-        else
+        } else {
             protectionList.get(1).render(g, x, y);
+        }
         animationCount++;
 
     }

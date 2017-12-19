@@ -197,8 +197,9 @@ public abstract class Enemy extends Entity {
         Random random = new Random();
         Integer direction = random.nextInt(4);
         EnemyHeading newEnemyHeading = enemyHeading.getFromNumber(direction);
-        if (newEnemyHeading == enemyHeading)
+        if (newEnemyHeading == enemyHeading) {
             changeEnemyHeading();
+        }
         return newEnemyHeading;
     }
 

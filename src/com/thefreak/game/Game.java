@@ -44,6 +44,7 @@ public class Game implements Runnable {
     private Boolean running;
     private Input input;
     private BufferedImage gameOverImage;
+    private long levelStart;
     private long timeWin;
     private Integer score; //Кол-во очков
     private Integer opponentScore; //Кол-во очков противника
@@ -51,6 +52,7 @@ public class Game implements Runnable {
     public Game() {
         opponentScore = 0;
         score = 0;
+        levelStart = System.currentTimeMillis();
         running = false;
         display = new Display(WIDTH + 8 * Level.SCALED_TILE_SIZE, HEIGHT, TITLE, CLEAR_COLOR, NUM_BUFFERS, this);
         graphics = display.getGraphics();
@@ -138,7 +140,7 @@ public class Game implements Runnable {
                     }
                 } else {
                     Random random = new Random();
-                    switch (random.nextInt(2)) {
+                    switch (random.nextInt(3)) {
                         case 0:
                             enemy = new EnemyInfantryVehicle(possibleX, 0f, SCALE, atlas, lvl, this);
                             break;
@@ -193,6 +195,15 @@ public class Game implements Runnable {
 
     private void nextLevel() {
         if (timeWin == 0 || System.currentTimeMillis() < timeWin + 5000) return;
+
+        score += Player.getPlayerLives() * 500;
+        score += Player.getPlayerStrength() * 1000;
+        int timeWinSec = (int) ((timeWin - levelStart) / 1000);
+
+        int maxTimeSec = 300;
+        if (timeWinSec <= maxTimeSec) {
+            score += (maxTimeSec - timeWinSec) * 10;
+        }
 
         bullets = new HashMap<>();
         bullets.put(EntityType.Player, new LinkedList<>());

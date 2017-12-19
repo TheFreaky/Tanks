@@ -93,21 +93,24 @@ public abstract class Entity {
         Integer[][] tileMap = lvl.getTileMap();
 
         return !(Integer.max(tileY, tileBottomY) >= tileMap.length || Integer.max(tileX, tileBottomX) >= tileMap[0].length
-                || isImpassableTile(tileMap[tileY][tileX], tileMap[tileCenterY][tileCenterX],
+                || isImpossibleTile(tileMap[tileY][tileX], tileMap[tileCenterY][tileCenterX],
                 tileMap[tileBottomY][tileBottomX]));
 
     }
 
-    private boolean isImpassableTile(Integer... tileNum) {
+    private boolean isImpossibleTile(Integer... tileNum) {
         for (Integer aTileNum : tileNum)
-            if (aTileNum == TileType.BRICK.numeric() || aTileNum == TileType.METAL.numeric()
+            if (aTileNum == TileType.BRICK.numeric()
+                    || aTileNum == TileType.METAL.numeric()
                     || aTileNum == TileType.DOWN_LEFT_EAGLE.numeric()
                     || aTileNum == TileType.DOWN_RIGHT_EAGLE.numeric()
-                    || aTileNum == TileType.UP_LEFT_EAGLE.numeric() || aTileNum == TileType.UP_RIGHT_EAGLE.numeric()
+                    || aTileNum == TileType.UP_LEFT_EAGLE.numeric()
+                    || aTileNum == TileType.UP_RIGHT_EAGLE.numeric()
                     || aTileNum == TileType.DOWN_LEFT_DEAD_EAGLE.numeric()
                     || aTileNum == TileType.DOWN_RIGHT_DEAD_EAGLE.numeric()
                     || aTileNum == TileType.UP_LEFT_DEAD_EAGLE.numeric()
-                    || aTileNum == TileType.UP_RIGHT_DEAD_EAGLE.numeric() || aTileNum == TileType.WATER.numeric()
+                    || aTileNum == TileType.UP_RIGHT_DEAD_EAGLE.numeric()
+                    || aTileNum == TileType.WATER.numeric()
                     || aTileNum == TileType.OTHER_WATER.numeric()) {
                 return true;
             }
