@@ -10,11 +10,11 @@ public class Server {
 
     public static final int START_CODE = -1;
     public static final int DISCONNECT_CODE = -2;
+    public static final int PORT = 6666;
 
     public static void main(String[] args) {
-        int port = 6666;
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
 
                 System.out.println("Waiting for a client...");
@@ -32,8 +32,8 @@ public class Server {
                 outputPlayer1.writeInt(START_CODE);
                 outputPlayer2.writeInt(START_CODE);
 
-                int scorePlayer1 = 0;
-                int scorePlayer2 = 0;
+                int scorePlayer1;
+                int scorePlayer2;
 
                 while (true) {
                     try {

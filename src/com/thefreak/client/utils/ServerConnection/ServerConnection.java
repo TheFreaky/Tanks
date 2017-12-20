@@ -1,5 +1,7 @@
 package com.thefreak.client.utils.ServerConnection;
 
+import com.thefreak.server.Server;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -15,12 +17,11 @@ public class ServerConnection {
     }
 
     public void connect() {
-        int serverPort = 6666;
         String address = "127.0.0.1";
 
         try {
             InetAddress ipAddress = InetAddress.getByName(address);
-            Socket socket = new Socket(ipAddress, serverPort);
+            Socket socket = new Socket(ipAddress, Server.PORT);
 
             DataInputStream inputStream = new DataInputStream(socket.getInputStream());
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
