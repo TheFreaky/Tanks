@@ -12,6 +12,8 @@ import com.thefreak.utils.Time;
 import com.thefreak.utils.Utils;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -54,6 +56,10 @@ public class Game implements Runnable, ServerListener {
     private WaitDialog waitDialog;
 
     public Game() {
+        prepareEmptyScene();
+    }
+
+    private void prepareEmptyScene() {
         opponentScore = 0;
         score = 0;
         running = false;
@@ -81,7 +87,7 @@ public class Game implements Runnable, ServerListener {
                 Integer pixel = gameOverImage.getRGB(j, i);
                 if ((pixel & 0x00FFFFFF) < 10)
                     gameOverImage.setRGB(j, i, (pixel & 0x00FFFFFF));
-        }
+            }
 
         waitDialog = new WaitDialog(Display.mainFrame);
         waitDialog.showDialog();
@@ -380,5 +386,11 @@ public class Game implements Runnable, ServerListener {
     @Override
     public void error(String text) {
         waitDialog.setText(text);
+    }
+
+    @Override
+    public void disconnected() {
+        Display.mainFrame.dispose();
+        prepareEmptyScene();
     }
 }

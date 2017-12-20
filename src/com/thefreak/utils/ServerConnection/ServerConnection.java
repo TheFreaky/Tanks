@@ -1,8 +1,6 @@
 package com.thefreak.utils.ServerConnection;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -37,6 +35,7 @@ public class ServerConnection {
                         Thread.sleep(REFRESH_TIME);
                     }
                 } catch (IOException | InterruptedException e) {
+                    listener.disconnected();
                     e.printStackTrace();
                 }
             }).start();
