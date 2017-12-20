@@ -1,18 +1,22 @@
 package com.thefreak.server;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
 
     public static final int START_CODE = -1;
+    public static final int DISCONNECT_CODE = -2;
 
-    public static void main(String[] args) throws IOException {
-        while (true) {
-            try {
-                int port = 6666;
-                ServerSocket serverSocket = new ServerSocket(port);
+    public static void main(String[] args) {
+        int port = 6666;
+
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            while (true) {
+
                 System.out.println("Waiting for a client...");
                 Socket socketPlayer1 = serverSocket.accept();
                 System.out.println("Player 1 connected! Wait second player...");
@@ -28,19 +32,32 @@ public class Server {
                 outputPlayer1.writeInt(START_CODE);
                 outputPlayer2.writeInt(START_CODE);
 
-                int scorePlayer1;
-                int scorePlayer2;
+                int scorePlayer1 = 0;
+                int scorePlayer2 = 0;
 
                 while (true) {
-                    scorePlayer1 = inputPlayer1.readInt();
-                    scorePlayer2 = inputPlayer2.readInt();
+                    try {
+                        scorePlayer1 = inputPlayer1.readInt();
+                    } catch (IOException e) {
+                        System.out.println("Connection from Player 1 lost!");
+                        outputPlayer2.writeInt(DISCONNECT_CODE);
+                        break;
+                    }
+                    try {
+                        scorePlayer2 = inputPlayer2.readInt();
+                    } catch (IOException e) {
+                        System.out.println("Connection from Player 2 lost!");
+                        outputPlayer1.writeInt(DISCONNECT_CODE);
+                        break;
+                    }
 
                     outputPlayer1.writeInt(scorePlayer2);
                     outputPlayer2.writeInt(scorePlayer1);
                 }
-            } catch (IOException e) {
-                System.out.println("Connection lost! Trying reconnect...");
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Connection lost! Trying reconnect...");
         }
     }
 
