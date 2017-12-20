@@ -1,19 +1,25 @@
 package com.thefreak.game;
 
 import com.thefreak.IO.Input;
+import com.thefreak.dialogs.WaitDialog;
 import com.thefreak.display.Display;
 import com.thefreak.game.level.Level;
 import com.thefreak.graphics.TextureAtlas;
+import com.thefreak.server.Server;
+import com.thefreak.utils.ServerConnection.ServerConnection;
+import com.thefreak.utils.ServerConnection.ServerListener;
 import com.thefreak.utils.Time;
 import com.thefreak.utils.Utils;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
-public class Game implements Runnable {
+public class Game implements Runnable, ServerListener {
 
     public static final Integer WIDTH = 624;
     public static final Integer HEIGHT = 624;
@@ -48,8 +54,13 @@ public class Game implements Runnable {
     private long timeWin;
     private Integer score; //Кол-во очков
     private Integer opponentScore; //Кол-во очков противника
+    private WaitDialog waitDialog;
 
     public Game() {
+        prepareEmptyScene();
+    }
+
+    private void prepareEmptyScene() {
         opponentScore = 0;
         score = 0;
         levelStart = System.currentTimeMillis();
@@ -79,9 +90,14 @@ public class Game implements Runnable {
                 if ((pixel & 0x00FFFFFF) < 10)
                     gameOverImage.setRGB(j, i, (pixel & 0x00FFFFFF));
             }
+
+        waitDialog = new WaitDialog(Display.mainFrame);
+        waitDialog.showDialog();
+        ServerConnection connection = new ServerConnection(this);
+        connection.connect();
     }
 
-    public void start() {
+    private void start() {
         if (running) return;
 
         running = true;
@@ -360,5 +376,32 @@ public class Game implements Runnable {
 
     public Integer getOpponentScore() {
         return opponentScore;
+    }
+
+    @Override
+    public void refreshData(int data) {
+        System.out.println("Opponent score: " + data);
+        if (data == Server.START_CODE){
+            start();
+            waitDialog.dispose();
+        }
+        else opponentScore = data;
+    }
+
+    @Override
+    public int dataToSend() {
+        System.out.println("Sending score: " + score);
+        return score;
+    }
+
+    @Override
+    public void error(String text) {
+        waitDialog.setText(text);
+    }
+
+    @Override
+    public void disconnected() {
+        Display.mainFrame.dispose();
+        prepareEmptyScene();
     }
 }
